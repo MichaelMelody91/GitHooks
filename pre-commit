@@ -1,0 +1,84 @@
+#!/bin/sh
+#
+# Hook used prior to commit to ensure that the branch being pushed to
+# is not a 'protected' branch (develop or master). 
+# Also verifies that the local branch is up to date with it's upstream
+# it wants to stop the commit.
+# 
+# The hook should exit with non-zero status after issuing an appropriate message if
+# it wants to stop the commit.
+#
+
+read -r -d '' ERROR_IMG << "EOM"
+                                                                         __ 
+                       _ ,___,-'",-=-. 
+           __,-- _ _,-'_)_  (""`'-._\ `. 
+        _,'  __ |,' ,-' __)  ,-     /. | 
+      ,'_,--'   |     -'  _)/         `\ 
+    ,','      ,'       ,-'_,`           : 
+    ,'     ,-'       ,(,-(              : 
+         ,'       ,-' ,    _            ; 
+        /        ,-._/`---'            / 
+       /        (____)(----. )       ,' 
+      /         (      `.__,     /\ /, 
+     :           ;-.___         /__\/| 
+     |         ,'      `--.      -,\ | 
+     :        /            \    .__/ 
+      \      (__            \    |_ 
+       \       ,`-, *       /   _|,\ 
+        \    ,'   `-.     ,'_,-'    \ 
+       (_\,-'    ,'\")--,'-'       __\ 
+        \       /  // ,'|      ,--'  `-. 
+         `-.    `-/ \'  |   _,'         `. 
+            `-._ /      `--'/             \ 
+               ,'           |              \ 
+              /             |               \ 
+           ,-'              |               / 
+          /                 |             -' 
+EOM
+
+readonly protected_branches=("develop" "master" "release")
+readonly current_branch=$(git rev-parse --abbrev-ref HEAD)
+readonly status=$(git fetch && git status -sb) 
+readonly regex="behind ([0-9]*)"
+
+is_current_branch_protected=false
+
+for protected_branch in "${protected_branches[@]}"; do
+
+	if [[ $protected_branch = *"$current_branch"* ]]; then
+		is_current_branch_protected=true
+		echo "setting is branch to true"
+	fi
+done
+ 
+if $is_current_branch_protected; then
+	echo "$ERROR_IMG"
+	cat <<\EOM
+	
+	
+Doh! Attempt to commit directly to a protected branch
+
+It is not advised to commit directly to develop, master or a release branch
+
+Any changes should be made via a pull request.
+
+EOM
+	exit 1
+fi
+
+if [[ $status =~ $regex ]]; then
+	echo "$ERROR_IMG"
+cat <<\EOM
+
+
+DOH! Attempt to commit to remote without latest changes
+
+Your branch is a number of commits behind remote
+
+Use "git pull" to merge remote changes into yours
+EOM
+	exit 1
+fi
+
+
