@@ -9,7 +9,6 @@
 # To enable this hook, rename this file to "commit-msg".
 
 read -r -d '' GOOD_COMMIT_GUIDELINES <<EOM	
-
                                          
 The following points are to be incorporated when writing a good commit message:
 
@@ -18,19 +17,19 @@ The following points are to be incorporated when writing a good commit message:
 * A commit message should contain a subject(summary) and a body(more detailed)
 * There should be an empty line between subject and body
 * The message body should explain what and why it vs how
-
+                   
 EOM
 
 read -r -d '' COMMIT_MSG_STRUCTURE_ERROR_MSG <<EOM	
                                
 Commit aborted
-
+              
 Please review the message strcuture. The recommended structure is:
-
+             
 Subject Line (10-72 characters)
-
-Message body
-
+             
+Message body 
+              
 EOM
 
 read -r -d '' SUBJECT_LINE_LENGTH_ERROR <<EOM	
@@ -40,15 +39,15 @@ Commit aborted
 Please review the subject line.
 
 A good subject line should be between 10 and 72 characters.
-
+                                        
 EOM
 
 read -r -d '' NO_EMPTY_LINE_BETWEEN_SUBJ_AND_BODY_ERROR_MSG <<EOM	
                      
 Commit aborted
-
+                     
 There should be an empty line between the subject and the body of the commit message
-
+                                          
 EOM
 
 commit_msg_filepath=$1
@@ -57,6 +56,7 @@ commit_lines_length=$(wc -l < $1)
 
 if ((commit_lines_length<3)); then
 	echo "$COMMIT_MSG_STRUCTURE_ERROR_MSG"
+	echo "$GOOD_COMMIT_GUIDELINES"
 	exit 1
 fi 
 
@@ -66,15 +66,16 @@ while IFS= read -r line; do
 		#Check subject length
 		if ! [[ ${#line} -ge 10 &&  ${#line} -le 72 ]]; then 
 			echo "$SUBJECT_LINE_LENGTH_ERROR"
+			echo "$GOOD_COMMIT_GUIDELINES"
 			exit 1
 		fi
 	elif ((i==2)); then 
 		# Ensure there is a empty line between subject and body
 		if [ -n "$line" ]; then 
 			echo "$NO_EMPTY_LINE_BETWEEN_SUBJ_AND_BODY_ERROR_MSG"
+			echo "$GOOD_COMMIT_GUIDELINES"
 			exit 1
 		fi
 	fi
-	
 	(( i++ ))
 done < $commit_msg_filepath
