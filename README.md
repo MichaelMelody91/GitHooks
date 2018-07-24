@@ -5,6 +5,7 @@ A collection of Git hooks which can be used to prevent common mistakes when work
 Hooks currently implemented:
 
 * pre-commit (Used to inspect the snapshot that is about to be committed)
+* commit-msg (Used to inspect a commit message and enforce good practice) 
 
 ## Prerequisites
 
@@ -20,7 +21,7 @@ Hooks currently implemented:
 
 ## Usage
 
-### Pre Commit 
+### pre-commit 
 
 Prevents a commit in 2 scenarios
 
@@ -31,9 +32,19 @@ Can be bypassed with:
 
     git commit --no-verify
 
+### commit-msg
+
+Prevents a commit if the commit message doesn't match the following standards
+
+* The message should contain asubject and a body
+* Subject seperated from the body with a blank line
+* The subject line between 10-72 characters
+* The subject line should be capitalized
+
 ## License
 This project is licensed under the MIT License - see the LICENSE.md file for details
 
 ## Acknowledgements 
 
-*  http://www.chris.com/ascii/ 
+* http://www.chris.com/ascii/ 
+* https://chris.beams.io/posts/git-commit/
