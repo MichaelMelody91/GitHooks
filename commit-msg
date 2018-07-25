@@ -1,0 +1,55 @@
+#!/bin/sh
+#
+# An example hook script to check the commit log message.
+# Called by "git commit" with one argument, the name of the file
+# that has the commit message.  The hook should exit with non-zero
+# status after issuing an appropriate message if it wants to stop the
+# commit.  The hook is allowed to edit the commit message file.
+#
+commit_msg_filepath=$1
+valid_commit_msg=true
+
+commit_lines_length=$(wc -l < $1)
+if ((commit_lines_length<3)); then
+	valid_commit_msg=false
+	abort_reason="Invalid commit message structure"
+fi 
+
+if [ "$valid_commit_msg" = true ]; then
+	i=1
+	while IFS= read -r line; do
+		if ((i == 1)); then
+			#Check subject length
+			if ! [[ ${#line} -ge 10 &&  ${#line} -le 72 ]]; then 
+				abort_reason="Commit subject length isn't the correct length"
+				valid_commit_msg=false
+				break
+			fi
+		elif ((i==2)); then 
+			# Ensure there is a empty line between subject and body
+			if [ -n "$line" ]; then 
+				abort_reason="There is no new line between commit subject and body"
+				valid_commit_msg=false
+				break
+			fi
+		fi
+		(( i++ ))
+	done < $commit_msg_filepath
+fi
+if [ "$valid_commit_msg" = false ]; then
+	cat <<EOM
+Commit aborted!
+
+$abort_reason
+											
+The following points are to be incorporated when writing a good commit message:
+
+* The subject line should be between 10-72 characters
+* The subject line should begin with a capital letter
+* A commit message should contain a subject(summary) and a body(more detailed)
+* There should be an empty line between subject and body
+* The message body should explain what and why it vs how
+														
+EOM
+	exit 1
+fi
