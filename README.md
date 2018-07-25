@@ -1,6 +1,6 @@
 # GitHooks
 
-A collection of Git hooks which can be used to prevent common mistakes when worknig with source control.
+A collection of Git hooks which can be used to prevent common mistakes when working with source control.
 
 Hooks currently implemented:
 
